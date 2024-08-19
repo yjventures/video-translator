@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Translator</title>
+    <!-- Bootstrap CSS -->
+    <link href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Source+Sans+Pro:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #1c1c1c;
+            color: white;
+            font-family: 'Source Sans Pro', sans-serif;
+        }
+        #overlay {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.8);
+            z-index: 1000;
+        }
+        #lottie-loader {
+            width: 500px;
+            height: 500px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+        }
+        .form-control, .btn {
+            background-color: #333;
+            color: white;
+            border: none;
+        }
+        .form-control::placeholder {
+            color: #ccc;
+        }
+        .navbar {
+            background-color: #000;
+            width: 100%;
+            height: 120px;
+        }
+        .navbar-brand {
+            margin: auto;
+        }
+        .navbar-brand img {
+            height: 80px;
+        }
+    </style>
+</head>
+<body class="text-center">
+    <nav class="navbar navbar-expand-lg">
+        <a class="navbar-brand" href="#">
+            <img src="/assets/logo.svg" alt="Logo">
+        </a>
+    </nav>
+    <div class="container" id="main-content">
+        <h1 class="my-4" style="padding-bottom: 100px !important;">Upload a Video to Translate into Arabic, French and Spanish</h1>
+        <form id="uploadForm" enctype="multipart/form-data" class="mb-4">
+            <div class="form-group row justify-content-center mb-3">
+                <div class="col-md-6">
+                    <label for="formFileLg" class="form-label">Select a video file</label>
+                    <input class="form-control form-control-lg" id="formFileLg" name="video" type="file" accept="video/*" required>
+                </div>
+            </div>
+            <div class="form-group row justify-content-center">
+                <div class="col-md-6">
+                    <button type="submit" class="btn btn-primary btn-lg btn-block">Upload</button>
+                </div>
+            </div>
+        </form>
+        <div id="videos" class="row"></div>
+    </div>
+    <div id="overlay">
+        <div id="lottie-loader"></div>
+    </div>
+
+    <!-- Bootstrap JS and dependencies -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+    <!-- Lottie library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/bodymovin/5.7.6/lottie.min.js"></script>
+
+    <script>
+        document.getElementById('uploadForm').addEventListener('submit', async (event) => {
+            event.preventDefault();
+            const overlay = document.getElementById('overlay');
+            overlay.style.display = 'block';
+
+            lottie.loadAnimation({
+                container: document.getElementById('lottie-loader'),
+                renderer: 'svg',
+                loop: true,
+                autoplay: true,
+                path: '/assets/loader.json'
+            });
+
+            const formData = new FormData(event.target);
+            const response = await fetch('/upload', {
+                method: 'POST',
+                body: formData
+            });
+            const result = await response.json();
+            const videosDiv = document.getElementById('videos');
+            videosDiv.innerHTML = '';
+            const languages = ['Arabic', 'French', 'Spanish'];
+            result.videos.forEach((video, index) => {
+                const colDiv = document.createElement('div');
+                colDiv.className = 'col-md-4 mb-4';
+                const videoElement = document.createElement('video');
+                videoElement.src = video;
+                videoElement.controls = true;
+                videoElement.className = 'w-100';
+                const label = document.createElement('p');
+                label.textContent = languages[index];
+                colDiv.appendChild(videoElement);
+                colDiv.appendChild(label);
+                videosDiv.appendChild(colDiv);
+            });
+
+            overlay.style.display = 'none';
+        });
+    </script>
+</body>
+</html>
