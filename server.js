@@ -10,6 +10,10 @@ const upload = multer({ dest: 'public/uploads/' });
 
 app.use(express.static('public'));
 
+app.get('/hello', (req, res) => {
+    res.send('hello bldr');
+});
+
 app.post('/upload', upload.single('video'), async (req, res) => {
     const videoPath = req.file.path;
     const audioPath = `public/uploads/audio.wav`;
