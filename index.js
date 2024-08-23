@@ -43,7 +43,7 @@ async function translateText(text, targetLanguage) {
 async function textToSpeech(text, language, outputPath) {
     const mp3 = await openai.audio.speech.create({
         model: "tts-1",
-        voice: "alloy",
+        voice: "onyx",
         input: text,
     });
     const buffer = Buffer.from(await mp3.arrayBuffer());
